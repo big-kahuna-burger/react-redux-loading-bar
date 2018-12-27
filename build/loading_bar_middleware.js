@@ -13,8 +13,9 @@ var _loading_bar_ducks = require('./loading_bar_ducks');
 var defaultTypeSuffixes = ['PENDING', 'FULFILLED', 'REJECTED'];
 
 function loadingBarMiddleware() {
-  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { typeProp: 'type' };
 
+  var typeProp = config.typeProp;
   var promiseTypeSuffixes = config.promiseTypeSuffixes || defaultTypeSuffixes;
   var scope = config.scope || _loading_bar_ducks.DEFAULT_SCOPE;
 
@@ -22,7 +23,7 @@ function loadingBarMiddleware() {
     var dispatch = _ref.dispatch;
     return function (next) {
       return function (action) {
-        if (action.type) {
+        if (action[typeProp]) {
           var _promiseTypeSuffixes = _slicedToArray(promiseTypeSuffixes, 3),
               PENDING = _promiseTypeSuffixes[0],
               FULFILLED = _promiseTypeSuffixes[1],
@@ -34,9 +35,9 @@ function loadingBarMiddleware() {
 
           var actionScope = action.meta && action.meta.scope || action.scope || scope;
 
-          if (action.type.match(isPending)) {
+          if (action[typeProp].match(isPending)) {
             dispatch((0, _loading_bar_ducks.showLoading)(actionScope));
-          } else if (action.type.match(isFulfilled) || action.type.match(isRejected)) {
+          } else if (action[typeProp].match(isFulfilled) || action[typeProp].match(isRejected)) {
             dispatch((0, _loading_bar_ducks.hideLoading)(actionScope));
           }
         }
